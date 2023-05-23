@@ -15,18 +15,28 @@ class TestAtomSimilarityQuery(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls.k_dim = 20
         cls.max_element = 3
+        API_KEY = os.environ["MP_API_KEY"]
 
-        with MPRester(os.environ["MP_API_KEY"]) as mpr:
-            criteria = {
-                "nelements": 2,
-                "e_above_hull": {"$lte": 0.}
-            }
-            properties = [
-                "structure",
-            ]
-            entries = mpr.query(criteria=criteria, properties=properties, mp_decode=True)
+        if len(API_KEY)==16:
 
-        structures = [entry["structure"] for entry in entries]
+            with MPRester(os.environ["MP_API_KEY"]) as mpr:
+                criteria = {
+                    "nelements": 2,
+                    "e_above_hull": {"$lte": 0.}
+                }
+                properties = [
+                    "structure",
+                ]
+                entries = mpr.query(criteria=criteria, properties=properties, mp_decode=True)
+
+            structures = [entry["structure"] for entry in entries]
+        elif len(API_KEY)==32:
+            with MPRester(API_KEY) as mpr:
+                docs = mpr.summary.search(
+                    num_elements=2, 
+                    energy_above_hull=0, 
+                    fields=["structure"])
+            structures = [doc.structure for doc in docs]
         cls.atom_similarity = AtomSimilarity.from_structures(structures=structures,
                                                              k_dim=cls.k_dim,
                                                              max_elements=cls.max_element)
