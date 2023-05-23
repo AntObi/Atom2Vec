@@ -1,1 +1,1 @@
-from .atom_similarity import AtomSimilarity
+from .atom_similarity import AtomSimilarity, SpeciesSimilarity
