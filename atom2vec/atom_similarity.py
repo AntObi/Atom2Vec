@@ -11,6 +11,7 @@ from pymatgen.core.periodic_table import get_el_sp, Element, Species
 from scipy.sparse.linalg import svds
 from sklearn.metrics.pairwise import cosine_similarity
 from tqdm import tqdm
+import pandas as pd
 
 
 class AtomSimilarity:
@@ -130,6 +131,15 @@ class AtomSimilarity:
     @classmethod
     def from_dict(cls, d):
         return cls(**d)
+    
+    def to_csv_vectors(self, filename:str):
+        """ Save atom vectors to csv file """
+        sorted_atoms_dict =dict(sorted(self._atoms_vector.items(), key=lambda v:Element(v[0]).number ))
+
+        df = pd.DataFrame.from_dict(sorted_atoms_dict, orient="index")
+        df.to_csv(filename, index_label="element")
+
+        
 
 
 class SpeciesSimilarity:
@@ -248,3 +258,12 @@ class SpeciesSimilarity:
     @classmethod
     def from_dict(cls, d):
         return cls(**d)
+    
+    def to_csv_vectors(self, filename: str):
+        """
+        Save species vectors to csv file
+        """
+        sorted_species_dict =dict(sorted(self._species_vector.items(), key=lambda v:Species.from_string(v[0]).number ))
+
+        df = pd.DataFrame.from_dict(sorted_species_dict, orient="index")
+        df.to_csv(filename, index_label="species")
